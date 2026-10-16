@@ -144,9 +144,9 @@ No other `data-testid` was seen in any view.
 - `h1` "Thank You for Your Purchase!"
 - `p` "Your order has been successfully placed. We've sent a confirmation email with your order details."
 - "Order Number" and a code (seen: `4T2RAX7Q`).
+- No orders are placed, as this is a demonstration application.
 - `button` "Back to Store" → back to the store with an **empty cart** (no badge, drawer shows `empty-cart`).
 - **Assumption:** the order number is generated on each purchase. Only one value was read.
-- **Assumption:** a confirmation email is actually sent. The app says so, but it made no network request that the Command Log showed.
 
 ## Not reached or not tried
 
