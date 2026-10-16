@@ -23,3 +23,13 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('openCart', () => {
+  // The cart button has no accessible name and no test id.
+  // Its lucide icon class is the only way to give it a meaning;
+  // the header scope rules out the cards' "Add to Cart" buttons,
+  // which have the same icon. See the finding in exploration/findings.md.
+  cy.get('header button:has(.lucide-shopping-cart)').click()
+
+  cy.contains('h2', 'Your Cart').should('be.visible')
+})
