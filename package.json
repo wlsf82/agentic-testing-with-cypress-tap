@@ -1,0 +1,31 @@
+{
+  "name": "agentic-testing-with-cypress-tap",
+  "version": "1.0.0",
+  "description": "Your Cypress project for the [Agentic Testing with Cypress Tap](https://talkingabouttesting.school/courses/agentic-testing-with-cypress-tap) course at the [Talking About Testing School](https://talkingabouttesting.school), pointed at **Emoji Mart**, an online store that sells emojis, deployed at <https://emoji-mart-one.vercel.app/>.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "cy:open": "cypress open --e2e --browser chrome",
+    "test": "cypress run --browser chrome"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wlsf82/agentic-testing-with-cypress-tap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wlsf82/agentic-testing-with-cypress-tap/issues"
+  },
+  "homepage": "https://github.com/wlsf82/agentic-testing-with-cypress-tap#readme",
+  "allowScripts": {
+    "cypress@16.2.0": true
+  },
+  "devDependencies": {
+    "cypress": "^16.2.0"
+  }
+}
