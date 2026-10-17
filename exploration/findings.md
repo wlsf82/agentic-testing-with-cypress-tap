@@ -26,7 +26,17 @@ Every verdict below was read fresh on 2026-10-17: `cart.cy.js` (`startedAt` 2026
 
 The tests scope to the nearest element with a test id (or, for the header and the cart's title bar, the nearest meaningful container) and pick the button by its icon, e.g. `button:has(.lucide-trash2)`. That is the least bad stable selector, not a choice: an `aria-label` per button would fix both the accessibility gap and the selectors.
 
-Fresh `aria` on 2026-10-17 (`checkout.cy.js`, test `r17`, pinned at command 14, with the Rocket in the cart): the close, minus, plus, and remove buttons are a bare `button`. The cart button reads `button  1`: its only name is the unit count from its badge, which a screen reader announces as "1", not "Open cart". With an empty cart (`cart.cy.js`, `r24`, pinned at command 16) it is a bare `button` again. No test asserts this requirement yet.
+Fresh `aria` on 2026-10-17 (`checkout.cy.js`, test `r17`, pinned at command 14, with the Rocket in the cart): the close, minus, plus, and remove buttons are a bare `button`. The cart button reads `button  1`: its only name is the unit count from its badge, which a screen reader announces as "1", not "Open cart". With an empty cart (`cart.cy.js`, `r24`, pinned at command 16) it is a bare `button` again.
+
+Tests: `cart.cy.js` › Accessibility (fresh verdict `startedAt` 2026-10-17T19:33:48.619Z, both failed on the assertion that states the requirement):
+
+- "announces the cart button as "Open cart"" (`r26`), with an empty cart: `expected '' to equal 'Open cart'`.
+- "gives every button an accessible name that says what it does" (`r27`), with the Rocket in the open cart: the cart button and the six "Add to Cart" buttons pass, then the close button (`lucide-x`) fails with `expected '' not to be empty`.
+
+Limits of the second test, to keep in mind when reading its verdict:
+
+- **It stops at the first button with no name.** The `expect` inside `.each` ends the test there, so the minus, plus, and remove buttons are never checked while the close button fails. `aria` shows them as a bare `button` too, but the test does not prove it. Fixing the close button alone will move the failure to the next one.
+- **`aria-labelledby` counts as a name by its value**, which is an id, not a name. A button that points at a missing or empty element passes, although a screen reader announces nothing.
 
 ## Minus at quantity 1 does not remove the item
 
@@ -36,7 +46,7 @@ Requirement: "Pressing minus on an item whose quantity is 1 removes the item fro
 
 Evidence: every row before the last passed, including the click on the Rainbow line's `button:has(.lucide-minus-circle)`. The test failed on the assertion that states the requirement:
 
-```
+```text
 Timed out retrying after 4000ms: Expected not to find content: 'Rainbow' within the selector: '[data-testid="cart-item"]' but continuously found it.
 ```
 
@@ -50,7 +60,7 @@ Requirement: "The cart keeps its contents when the page is reloaded."
 
 Evidence: before `cy.reload()`, the cart button had the text `'1'`. After it, the test failed on the assertion that states the requirement:
 
-```
+```text
 Timed out retrying after 4000ms: Expected to find content: 'Rocket' within the selector: '[data-testid="cart-item"]' but never did.
 ```
 
@@ -64,7 +74,7 @@ Requirement: "A search that matches no emoji shows the message 'No emojis found'
 
 Evidence: typing `xyzzy` passed (`to have value xyzzy`), then:
 
-```
+```text
 Timed out retrying after 4000ms: Expected to find content: 'No emojis found' but never did.
 ```
 
@@ -85,7 +95,7 @@ Requirement: "The card number must have 16 digits; spaces between groups of digi
 
 Evidence: in all four, every field was typed (each `have value` passed) and the click on "Complete Purchase" passed. Each then failed on the first assertion that states the requirement:
 
-```
+```text
 Timed out retrying after 4000ms: Expected to find content: 'Payment Information' within the selector: 'h3' but never did.
 ```
 

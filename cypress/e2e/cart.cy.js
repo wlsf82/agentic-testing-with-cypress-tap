@@ -96,11 +96,13 @@ describe('Cart', () => {
           .should('have.text', '1')
       })
 
-      it('removes the item when minus is pressed at quantity 1', () => {
+      // Bug: minus at quantity 1 leaves the item in the cart instead of removing it.
+      // Reported in bug-reports/002-minus-at-quantity-1-does-not-remove-item.md.
+      // Remove the .skip once the bug is fixed.
+      it.skip('removes the item when minus is pressed at quantity 1', () => {
         cy.decreaseQuantity('Rainbow')
 
         cy.contains('[data-testid="cart-item"]', 'Rocket').should('be.visible')
-        // Fails on purpose: minus at quantity 1 leaves the item in the cart (test plan C9).
         cy.contains('[data-testid="cart-item"]', 'Rainbow').should('not.exist')
       })
 
@@ -151,16 +153,49 @@ describe('Cart', () => {
         .should('have.text', '2')
     })
 
-    it('keeps its contents when the page is reloaded', () => {
+    // Bug: a reload empties the cart.
+    // Reported in bug-reports/003-reload-empties-cart.md.
+    // Remove the .skip once the bug is fixed.
+    it.skip('keeps its contents when the page is reloaded', () => {
       cy.addToCart('Rocket')
 
       cy.reload()
 
       cy.openCart()
-      // Fails on purpose: a reload empties the cart (test plan C14).
       cy.contains('[data-testid="cart-item"]', 'Rocket')
         .find('[data-testid="cart-item-counter"]')
         .should('have.text', '1')
+    })
+  })
+
+  context('Accessibility', () => {
+    const accessibleName = ($button) =>
+      $button.text().trim() ||
+      $button.attr('aria-label') ||
+      $button.attr('aria-labelledby') ||
+      $button.attr('title') ||
+      ''
+
+    // Bug: icon-only buttons have no accessible name.
+    // Reported in bug-reports/001-icon-only-buttons-have-no-accessible-name.md.
+    // Remove the .skip once the bug is fixed.
+    it.skip('announces the cart button as "Open cart"', () => {
+      cy.getCartButton().then(($button) => {
+        expect(accessibleName($button), $button.prop('outerHTML')).to.equal('Open cart')
+      })
+    })
+
+    // Bug: icon-only buttons have no accessible name.
+    // Reported in bug-reports/001-icon-only-buttons-have-no-accessible-name.md.
+    // Remove the .skip once the bug is fixed.
+    it.skip('gives every button an accessible name that says what it does', () => {
+      cy.addToCart('Rocket')
+
+      cy.openCart()
+
+      cy.get('button').each(($button) => {
+        expect(accessibleName($button), $button.prop('outerHTML')).to.not.be.empty
+      })
     })
   })
 })

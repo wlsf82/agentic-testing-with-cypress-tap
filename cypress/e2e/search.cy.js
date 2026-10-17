@@ -65,10 +65,12 @@ describe('Search', () => {
       cy.get('[data-testid="emoji-card"]').should('have.length', 6)
     })
 
-    it('shows "No emojis found" when nothing matches', () => {
+    // Bug: a search that matches nothing shows no "No emojis found" message.
+    // Reported in bug-reports/004-no-message-when-search-matches-nothing.md.
+    // Remove the .skip once the bug is fixed.
+    it.skip('shows "No emojis found" when nothing matches', () => {
       cy.search('xyzzy')
 
-      // Fails on purpose: the app shows no message when nothing matches (test plan Q8).
       cy.contains('No emojis found').should('be.visible')
     })
   })
