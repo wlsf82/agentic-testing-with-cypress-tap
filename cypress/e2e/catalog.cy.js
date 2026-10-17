@@ -6,7 +6,7 @@ const emojis = [
   { symbol: '🌈', name: 'Rainbow', price: '$5.99' },
   { symbol: '💖', name: 'Sparkling Heart', price: '$3.99' },
   { symbol: '🎮', name: 'Game Controller', price: '$7.99' },
-  { symbol: '🌟', name: 'Glowing Star', price: '$5.00' },
+  { symbol: '🌟', name: 'Glowing Star', price: '$4.99' },
 ]
 
 describe('Catalog', () => {
