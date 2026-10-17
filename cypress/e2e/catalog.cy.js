@@ -15,7 +15,7 @@ describe('Catalog', () => {
   })
 
   context('Store', () => {
-    it.only('shows the store name at the top of the page', () => {
+    it('shows the store name at the top of the page', () => {
       cy.contains('header h1', 'EmojiMart').should('be.visible')
     })
 
