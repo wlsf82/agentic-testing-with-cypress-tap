@@ -9,20 +9,10 @@ const validCheckout = {
   cvv: '123',
 }
 
-const fillCheckout = (overrides = {}) => {
-  const data = { ...validCheckout, ...overrides }
-
-  Object.keys(data).forEach((id) => {
-    cy.get(`#${id}`).type(data[id])
-  })
-}
-
 describe('Checkout', () => {
   beforeEach(() => {
     cy.visit('/')
-    cy.contains('[data-testid="emoji-card"]', 'Rocket').within(() => {
-      cy.contains('button', 'Add to Cart').click()
-    })
+    cy.addToCart('Rocket')
     cy.goToCheckout()
   })
 
@@ -78,7 +68,7 @@ describe('Checkout', () => {
 
     invalidFields.forEach(({ description, id, label, value }) => {
       it(`does not complete the purchase with ${description}, and says what is wrong next to the field`, () => {
-        fillCheckout({ [id]: value })
+        cy.fillCheckout({ ...validCheckout, [id]: value })
 
         cy.contains('button', 'Complete Purchase').click()
 
@@ -118,7 +108,7 @@ describe('Checkout', () => {
 
   context('Completing a purchase', () => {
     it('completes the purchase when every field is valid, showing "Thank You for Your Purchase!"', () => {
-      fillCheckout()
+      cy.fillCheckout(validCheckout)
 
       cy.contains('button', 'Complete Purchase').click()
 
@@ -128,9 +118,7 @@ describe('Checkout', () => {
 
   context('Thank-you page', () => {
     beforeEach(() => {
-      fillCheckout()
-      cy.contains('button', 'Complete Purchase').click()
-      cy.contains('h1', 'Thank You for Your Purchase!').should('be.visible')
+      cy.completePurchase(validCheckout)
     })
 
     it('shows an order number made of uppercase letters and digits', () => {

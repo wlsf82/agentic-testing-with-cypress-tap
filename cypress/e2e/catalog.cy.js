@@ -80,15 +80,14 @@ describe('Catalog', () => {
       .filter(({ name }) => name !== 'Rocket')
       .forEach(({ symbol, name, price }) => {
         it(`opens the ${name}'s own page`, () => {
-          cy.contains('[data-testid="emoji-card"]', name).within(() => {
-            // The description has no test id. It is the only p in the card.
-            cy.get('p')
-              .invoke('text')
-              .as('description', { type: 'static' })
-            cy.contains('h3', name).click()
-          })
+          // The description has no test id. It is the only p in the card.
+          cy.contains('[data-testid="emoji-card"]', name)
+            .find('p')
+            .invoke('text')
+            .as('description', { type: 'static' })
 
-          cy.contains('button', '← Back to all emojis').should('be.visible')
+          cy.openEmojiPage(name)
+
           cy.contains('h2', name).should('be.visible')
           cy.contains('div', symbol).should('be.visible')
           cy.get('@description').then((description) => {
@@ -100,15 +99,13 @@ describe('Catalog', () => {
 
     context('The Rocket\'s page', () => {
       beforeEach(() => {
-        cy.contains('[data-testid="emoji-card"]', 'Rocket').within(() => {
-          // The description has no test id. It is the only p in the card.
-          cy.get('p')
-            .invoke('text')
-            .as('description', { type: 'static' })
-          cy.contains('h3', 'Rocket').click()
-        })
+        // The description has no test id. It is the only p in the card.
+        cy.contains('[data-testid="emoji-card"]', 'Rocket')
+          .find('p')
+          .invoke('text')
+          .as('description', { type: 'static' })
 
-        cy.contains('button', '← Back to all emojis').should('be.visible')
+        cy.openEmojiPage('Rocket')
       })
 
       it('shows the Rocket\'s symbol, name, description, and price', () => {
@@ -123,15 +120,8 @@ describe('Catalog', () => {
       it('adds the Rocket to the cart', () => {
         cy.contains('button', 'Add to Cart').click()
 
-        // The cart button has no accessible name and no test id.
-        // Its shopping cart icon is the only thing that says what it is;
-        // the header scope rules out the cards' "Add to Cart" buttons,
-        // which have the same icon. Its text is the unit count.
-        cy.get('header button:has(.lucide-shopping-cart)')
-          .should('have.text', '1')
-          .click()
-
-        cy.contains('h2', 'Your Cart').should('be.visible')
+        cy.getCartButton().should('have.text', '1')
+        cy.openCart()
         cy.contains('[data-testid="cart-item"]', 'Rocket').should('be.visible')
       })
 
