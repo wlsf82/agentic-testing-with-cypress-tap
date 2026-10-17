@@ -85,26 +85,41 @@ Write it following the [AAA pattern](./02-test-organization.md) and the [test da
 
 A `passed` counts only when `results.passed` is greater than zero and equal to the number of tests the spec should run.
 
-Below is a reusable polling snippet, in Bash (replace the value of `base` with the noted `startedAt`, or leave it as `null` before the very first run).
+Below is a reusable polling snippet, in Bash (set `spec` to the expected spec path, as `tap specs` lists it, and replace the value of `base` with the noted `startedAt`, or leave it as `null` before the very first run).
 
 ```bash
+spec="cypress/e2e/<name>.cy.js"
 base="null"
+verdict=""
 for i in $(seq 1 60); do
   out=$(npx cypress tap status --json 2>/dev/null) || { echo "status failed"; break; }
-  s=$(echo "$out" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const j=JSON.parse(d);console.log(j.status+"|"+j.startedAt)}catch{console.log("?|?")}})')
-  st=${s%%|*}; sa=${s#*|}
-  if { [ "$st" = passed ] || [ "$st" = failed ]; } && [ "$sa" != null ] && [ "$sa" != undefined ] && [ "$sa" != "?" ] && [ "$sa" != "$base" ]; then
-    echo "$st $sa"; break
+  s=$(echo "$out" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const j=JSON.parse(d);console.log(j.status+"|"+j.startedAt+"|"+j.spec)}catch{console.log("?|?|?")}})')
+  st=${s%%|*}; rest=${s#*|}; sa=${rest%%|*}; sp=${rest#*|}
+  if { [ "$st" = passed ] || [ "$st" = failed ]; } && [ "$sa" != null ] && [ "$sa" != undefined ] && [ "$sa" != "?" ] && [ "$sa" != "$base" ] && [ "$sp" = "$spec" ]; then
+    verdict="$st $sa"; echo "$verdict"; break
   fi
   sleep 2
 done
+[ -n "$verdict" ] || echo "no fresh verdict (last status: $st, spec: $sp)"
 ```
+
+`no fresh verdict` means there is no verdict: report it as such, never as a pass or a failure.
 
 > **Never put two runs in flight.** If you saved the selected spec, use the watcher's run instead of also calling `npx cypress tap run <spec>`.
 
 Saving files the spec depends on (e.g., `cypress/support/commands.js` or `cypress.config.js`) also triggers runs, and several quick edits may trigger several runs. After a batch of edits, wait for the watcher's runs to finish, then dispatch a single `npx cypress tap run <spec>` to get a verdict that reflects the final state of every file.
 
 A JavaScript syntax error leaves the spec in `loading`, with the error shown only in the Cypress window, not through Tap. That is why the polling is bounded: when a spec never leaves `loading`, look for a syntax error.
+
+To get the error, with its file and line, run the spec headless:
+
+```bash
+npx cypress run --browser chrome --spec <spec>
+```
+
+The bundling fails within seconds, before any test runs, and prints the error with a code frame (e.g., `Unexpected token, expected "," (4:2)`). It is a separate process, so it does not touch the open session. If it exits at once with only `code: 'MODULE_NOT_FOUND'`, the shell has `ELECTRON_RUN_AS_NODE` set (editors such as VS Code leak it): rerun it with `env -u ELECTRON_RUN_AS_NODE` in front. If you can't run it at all, ask the user to run it and send you the output, and don't guess at the error.
+
+When the polling ends with `status` still showing another spec, the run you expected never started: check that the path you passed matches one listed by `npx cypress tap specs`, then dispatch it once more with `npx cypress tap run <spec>`.
 
 ### 5. Read the results
 
@@ -220,4 +235,10 @@ A confirmed bug's test is never deleted (that throws away the proof) and never l
 
 ## Failure catalog
 
-Empty on purpose. Each entry is a failure an agent actually hit on this project, written as a symptom, a cause, and a fix, so the next session recognizes it. Entries are added when they happen, never in advance.
+Each entry is a failure an agent actually hit on this project, written as a symptom, a cause, and a fix, so the next session recognizes it. Entries are added when they happen, never in advance.
+
+### The cart holds a different emoji than the one the test added
+
+- **Symptom:** `cy.contains('[data-testid="cart-item"]', '<name>')` times out. Pinning the open cart and reading it with `dom` shows another emoji (the first card, Smiling Face). `command` on the "Add to Cart" row shows `Applied To <body>`.
+- **Cause:** `cy.contains('button', 'Add to Cart')` written as a separate command searches the whole page and yields the first of the six "Add to Cart" buttons. A `cy.contains` on the card just before it does not limit it.
+- **Fix:** use `cy.addToCart('<name>')`, which limits the click to the card and checks the cart count, instead of clicking the button inline. See [Custom Commands](./04-commands.md#custom-commands) and [Selectors](./03-selectors.md).
