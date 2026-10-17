@@ -33,3 +33,10 @@ Cypress.Commands.add('openCart', () => {
 
   cy.contains('h2', 'Your Cart').should('be.visible')
 })
+
+Cypress.Commands.add('goToCheckout', () => {
+  cy.openCart()
+  cy.contains('button', 'Proceed to Checkout').click()
+
+  cy.contains('button', 'Complete Purchase').should('be.visible')
+})
