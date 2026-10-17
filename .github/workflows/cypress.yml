@@ -1,0 +1,22 @@
+name: End-to-end tests
+on:
+  push:
+    branches: [ main, final-solution ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  cypress-run:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fail on a leftover .only
+        run: |
+          if grep -rnE "(describe|context|it)\.only" cypress/e2e; then
+            echo "Remove every .only before pushing."
+            exit 1
+          fi
+      - name: Run the suite
+        uses: cypress-io/github-action@v7
+        with:
+          browser: chrome
