@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/wlsf82/agentic-testing-with-cypress-tap#readme",
   "allowScripts": {
-    "cypress@16.2.0": true
+    "cypress@16.2.1": true
   },
   "devDependencies": {
-    "cypress": "^16.2.0"
+    "cypress": "^16.2.1"
   }
 }
